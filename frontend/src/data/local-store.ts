@@ -54,6 +54,17 @@ export function resetRows(key: string): EntryRow[] {
   return rows
 }
 
+// 上线演练显式选择「重建」时使用：所有业务模块整体回到示例数据。
+// 只追加保存的历史交接快照不在这个键里，重建台账不会动到旧快照。
+export function resetAllRows(): Record<string, EntryRow[]> {
+  const seeded = clone(SEED_ROWS)
+  cache = seeded
+  if (typeof window !== 'undefined' && window.localStorage) {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded))
+  }
+  return seeded
+}
+
 export function storageKey(): string {
   return STORAGE_KEY
 }

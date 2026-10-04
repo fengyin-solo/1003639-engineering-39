@@ -69,3 +69,21 @@ npm run build
   `frontend/src/data/seed.ts`。
 - 状态流转只允许在 `local-service.ts` 里改，页面组件不做业务判断。
 - 想回到初始数据：清掉浏览器里 `forest-fire-patrol:entries` 这一项，或调用 `resetModule(模块)`。
+
+## 上线前演练（运营概览）
+
+入口：运营概览页「上线前演练」按钮，或侧边栏「上线前演练」（路由 `/rehearsal`）。
+逻辑在 `frontend/src/api/rehearsal-service.ts`，演练数据与业务台账分开持久化：
+
+- 业务台账仍用 `forest-fire-patrol:entries`；演练编排、交接快照、发布核查清单分别用
+  `forest-fire-patrol:rehearsal:run`、`forest-fire-patrol:rehearsal:snapshots`、
+  `forest-fire-patrol:release-checklist`。
+- 三个环节按顺序推进：① 用示例数据核对业务模块数、登记总量、待处理、异常量；
+  ② 生成林场交接快照；③ 发布核查——概览汇总、处置提醒（跨模块 pending/abnormal 聚合）、
+  物资预警（物资储备的偏低/需补充/已过期）必须读到同一份数据（数据指纹 + 登记总量一致）。
+- 台账不为空时默认**保留**现有台账，只按示例基线比对（不动业务数据）；核对失败后可显式选择
+  **重建**（全部模块回到示例数据）再从缺失环节继续。
+- 中断（核对不通过、关掉页面）后再次执行沿用同一轮次，从第一个未完成环节继续。
+- 全程幂等：连续执行两次不产生重复快照、重复核查事项。快照按数据指纹去重、只追加保存，
+  历史交接快照永不被新样例覆盖；同指纹复用已有快照。
+- 跨模块处置提醒与物资预警会同步进发布核查清单（按稳定 key 幂等并入，消失的提醒转 closed 留痕）。

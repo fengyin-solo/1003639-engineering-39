@@ -6,6 +6,7 @@
         <p class="page-desc">汇总各业务模块的关键指标，先看总量再看异常。</p>
       </div>
       <div class="page-actions">
+        <RouterLink class="btn primary" to="/rehearsal">上线前演练</RouterLink>
         <button class="btn" type="button" @click="refresh">重新统计</button>
       </div>
     </header>
